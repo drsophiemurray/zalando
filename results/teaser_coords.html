@@ -1,0 +1,84 @@
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>Google Maps - pygmaps </title>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>
+<script type="text/javascript">
+	function initialize() {
+		var centerlatlng = new google.maps.LatLng(52.520007, 13.404954);
+		var myOptions = {
+			zoom: 13,
+			center: centerlatlng,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
+		var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
+		var latlng = new google.maps.LatLng(52.516288, 13.377689);
+		var img = new google.maps.MarkerImage('/Library/Python/2.7/site-packages/gmplot/markers/000000.png');
+		var marker = new google.maps.Marker({
+		title: "no implementation",
+		icon: img,
+		position: latlng
+		});
+		marker.setMap(map);
+
+var PolylineCoordinates = [
+new google.maps.LatLng(52.529198, 13.274099),
+new google.maps.LatLng(52.531835, 13.292340),
+new google.maps.LatLng(52.522116, 13.298541),
+new google.maps.LatLng(52.520569, 13.317349),
+new google.maps.LatLng(52.524877, 13.322434),
+new google.maps.LatLng(52.522788, 13.329000),
+new google.maps.LatLng(52.517056, 13.332075),
+new google.maps.LatLng(52.522514, 13.340743),
+new google.maps.LatLng(52.517239, 13.356665),
+new google.maps.LatLng(52.523063, 13.372158),
+new google.maps.LatLng(52.519198, 13.379453),
+new google.maps.LatLng(52.522462, 13.392328),
+new google.maps.LatLng(52.520921, 13.399703),
+new google.maps.LatLng(52.515333, 13.406054),
+new google.maps.LatLng(52.514863, 13.416354),
+new google.maps.LatLng(52.506034, 13.435923),
+new google.maps.LatLng(52.496473, 13.461587),
+new google.maps.LatLng(52.487641, 13.483216),
+new google.maps.LatLng(52.488739, 13.491456),
+new google.maps.LatLng(52.464011, 13.503386),
+];
+
+var Path = new google.maps.Polyline({
+clickable: false,
+geodesic: true,
+path: PolylineCoordinates,
+strokeColor: "#0000FF",
+strokeOpacity: 1.000000,
+strokeWeight: 5
+});
+
+Path.setMap(map);
+
+
+var PolylineCoordinates = [
+new google.maps.LatLng(52.590117, 13.399150),
+new google.maps.LatLng(52.437385, 13.553989),
+];
+
+var Path = new google.maps.Polyline({
+clickable: false,
+geodesic: true,
+path: PolylineCoordinates,
+strokeColor: "#FF00FF",
+strokeOpacity: 1.000000,
+strokeWeight: 5
+});
+
+Path.setMap(map);
+
+
+	}
+</script>
+</head>
+<body style="margin:0px; padding:0px;" onload="initialize()">
+	<div id="map_canvas" style="width: 100%; height: 100%;"></div>
+</body>
+</html>
