@@ -1,14 +1,16 @@
 #........
+import os
 import gmplot
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.patheffects as PathEffects
 #from mpl_toolkits.basemap import Basemap
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from scipy import stats
 from shapely.geometry import LineString, Point
 
-# Coordinates given in teaser question
+##Coordinates given in teaser question
 R_E = 6371 #km
 BRAN_GPS = (52.516288, 13.377689)
 SAT_GPS_START = (52.590117, 13.39915)
@@ -25,31 +27,36 @@ SPREE_GPS = [(52.529198, 13.274099), (52.531835, 13.292340),
              (52.488739, 13.491456), (52.464011, 13.503386)]
 SW_CORNER = (52.464011, 13.274099)
 
-# Lets keep to km for nicer plots
+##Lets keep to km for nicer plots
 M_TO_KM = 1000.
 
-# Other info given in teaser
+##Other info given in teaser
 BRAN_MEAN = 4700. / M_TO_KM
 BRAN_MODE = 3877. / M_TO_KM
 SAT_DIST = 2400. / M_TO_KM
 SPREE_DIST = 2730. / M_TO_KM
 
-# Some plot settings
+##Some plot settings
 mpl.rc('font', family='serif', weight='normal', size=10)
 
-# Some settings I have defined
-# Search box size
+##Some settings I have defined:
+##Search box size
 LAT_RANGE = (52.41583, 52.61167)
 LON_RANGE = (13.23389, 13.58944)
-# Search resolution (placed up here in case want to change it):
+##Search resolution (placed up here in case want to change it):
 RES = 0.1
 
 
 def main():
     """......
         """
+    ##Just making a results folder for the output..
+    if not os.path.isdir('results'):
+        os.mkdir('results')
+    
     ##First I mapped all the information as a sanity check,
     ##Note, my first version was using Basemap but commented out as it totally sucked...
+#    plot_teaser_basemap()
     plot_teaser_coords()
 
 	##lets work with the info we have been given re: the probability distributions.
@@ -61,6 +68,8 @@ def main():
 	##commented out as really not needed for the solution
 #    plot_distribs(bran_lognorm, sat_norm, spree_norm)
 
+    #---------------------------------
+
 	##I decided to use the conversion equations provided to me to work in cartesian
 	##rather than spherical coordinates, so next step is to convert everything needed.
     bran_coords = sphere_to_cart(BRAN_GPS[0], BRAN_GPS[1])
@@ -70,30 +79,59 @@ def main():
 
 	##I also need to define a search box,
 	##which I based on the min/max of the coords provided
-    x_shape, box = search_box(LAT_RANGE, LON_RANGE, RES)
+    x, y, box = search_box(LAT_RANGE, LON_RANGE, RES)
 
 	##Now calculate pdfs
     bran_prob = pdf_point(box, Point(bran_coords), bran_lognorm)
     sat_prob = pdf_point(box, LineString([(sat_coords_start), (sat_coords_end)]), sat_norm)
     spree_prob = pdf_point(box, LineString(spree_coords), spree_norm)
 
-    bran_z = np.array(bran_prob).reshape(x_shape)
-    sat_z = np.array(sat_prob).reshape(x_shape)
-    spree_z = np.array(spree_prob).reshape(x_shape)
+    bran_z = np.array(bran_prob).reshape(x.shape)
+    sat_z = np.array(sat_prob).reshape(x.shape)
+    spree_z = np.array(spree_prob).reshape(x.shape)
+
+    ##Plot the results
+#    plot_contour_distribs(bran_z, sat_z, spree_z, x, y)
+
+    #---------------------------------
 
 	##Convert back to spherical coords
-    lat_grid, lon_grid = search_grid(box, x_shape)
+    lat_grid, lon_grid = search_grid(box, x.shape)
 
 	##Combine them and print out max
     total_z = bran_z + sat_z + spree_z
     max_loc = np.where(total_z == total_z.max())
     analyst_loc = (float(lat_grid[max_loc]), float(lon_grid[max_loc]))
-    print analyst_loc
+    print "Analyst most likely at:", analyst_loc,
+    print "with a probability of", total_z.max()
+
+    ##Save the location in a text file
+    np.savetxt("./results/location.txt",
+               np.c_[analyst_loc],
+               fmt = "%0.4f",
+               header = "latitude longitude")
 
 	##Plot the distributions
     plot_pdf(bran_z, sat_z, spree_z, total_z, lat_grid, lon_grid, max_loc)
 
+    ##Show location on google map
     plot_solution(analyst_loc)
+
+
+##===========================================================================
+
+def axis_contour_settings(ax, x, y, text):
+    """...
+        """
+    ax.axis([x.min(), x.max(), y.min(), y.max()])
+    ax.text(x.min(), y.min(), text,
+            path_effects=[PathEffects.withStroke(linewidth=0.8, foreground="w")])
+
+
+def axis_pdf_settings(ax, xlabel=[], ylabel=[], zlabel=[]):
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_zlabel(zlabel)
 
 
 def cart_to_sphere(p_x, p_y):
@@ -136,21 +174,50 @@ def pdf_point(box, point, distrib):
     return prob
 
 
-#def plot_distribs(bran, sat, spree):
-#    """......
-#        """
-#    x = np.linspace(0, 10, 101)
-#    fig = plt.figure()
-#    ax = fig.add_subplot(1, 1, 1)
-#    ax.plot(x, bran.pdf(x),
-#            label = 'Brandenburg', color = 'k')
-#    ax.plot(x, sat.pdf(x),
-#            label = 'Satellite', color = 'm')
-#    ax.plot(x, spree.pdf(x),
-#            label = 'Spree', color = 'b')
-#    ax.legend()
-#    fig.savefig('./results/norms.png', format = "png")
-#    plt.close()
+def plot_contour_distribs(bran_z, sat_z, spree_z, x, y):
+    """.....
+        """
+    norm = mpl.colors.Normalize(vmin=bran_z.min(),
+                                vmax=bran_z.max())
+    fig = plt.figure()
+    fig.subplots_adjust(top = 0.33)
+    bran = fig.add_subplot(131)
+    bran_fig = bran.pcolor(x, y, bran_z,
+                cmap='hot', norm=norm)
+    axis_contour_settings(bran, x, y,
+                  text = 'Brandenburg')
+    sat = fig.add_subplot(132)
+    sat.pcolor(x, y, sat_z,
+               cmap='hot', norm=norm)
+    axis_contour_settings(sat, x, y,
+                  text = 'Satellite')
+    spree = fig.add_subplot(133)
+    spree.pcolor(x, y, spree_z,
+                 cmap='hot', norm=norm)
+    axis_contour_settings(spree, x, y,
+                  text = 'Spree')
+    fig.colorbar(bran_fig, label = 'Probability')
+    fig.savefig('./results/distribs_2d.png',
+                bbox_inches='tight',
+                format="png")
+    plt.close()
+
+
+def plot_distribs(bran, sat, spree):
+    """......
+        """
+    x = np.linspace(0, 10, 101)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x, bran.pdf(x),
+            label = 'Brandenburg', color='k')
+    ax.plot(x, sat.pdf(x),
+            label = 'Satellite', color='m')
+    ax.plot(x, spree.pdf(x),
+            label = 'Spree', color='b')
+    ax.legend()
+    fig.savefig('./results/norms.png', format="png")
+    plt.close()
 
 
 def plot_pdf(bran_z, sat_z, spree_z, total_z, lat, lon, loc):
@@ -164,18 +231,27 @@ def plot_pdf(bran_z, sat_z, spree_z, total_z, lat, lon, loc):
     ax.plot_surface(lon, lat, bran_z,
                     color='k',
                     alpha=alpha, lw=lw)
+    bran_proxy = plt.Rectangle((0, 0), 1, 1, fc="k")
     ax.plot_surface(lon, lat, sat_z,
                     color='m',
                     alpha=alpha, lw=lw)
+    sat_proxy = plt.Rectangle((0, 0), 1, 1, fc="m")
     ax.plot_surface(lon, lat, spree_z,
                     color='b',
                     alpha=alpha, lw=lw)
+    spree_proxy = plt.Rectangle((0, 0), 1, 1, fc="b")
+    axis_pdf_settings(ax,
+                      xlabel=r'Longitude [$^\circ$E]',
+                      ylabel='Latitude [$^\circ$N]',
+                      zlabel='Probability')
+    ax.legend([bran_proxy, sat_proxy, spree_proxy],
+              ['Brandenburg', 'Satellite', 'Spree'],
+              fontsize = 10)
     fig.savefig('./results/distribs_all.png', format="png")
     plt.close()
 
     fig = plt.figure()
     ax_tot = fig.add_subplot(111, projection="3d")
-
     ax_tot.plot_surface(lon, lat, total_z,
                         color='y',
                         alpha=alpha, lw=lw)
@@ -184,6 +260,10 @@ def plot_pdf(bran_z, sat_z, spree_z, total_z, lat, lon, loc):
                     offset=0, cmap='hot')
     ax_tot.plot(lon[loc], lat[loc],
                 'ko', markersize=2)
+    axis_pdf_settings(ax_tot,
+                      xlabel='Longitude [$^\circ$E]',
+                      ylabel='Latitude [$^\circ$N]',
+                      zlabel='Probability')
     fig.savefig('./results/distrib_total.png', format="png")
     plt.close()
 
@@ -262,7 +342,7 @@ def search_box(lat_range, lon_range, interval):
         for j in range(0, len(y[i])):
             box.append([x[i][j], y[i][j]])
 
-    return x.shape, box
+    return x, y, box
 
 
 def search_grid(box, x_shape):
