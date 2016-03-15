@@ -21,33 +21,38 @@ Coordinates
 
 Radis of Earth is defined as:
 
-earth_radius = 6371 #units in km
+::
+    earth_radius = 6371 #units in km
 
 The GPS coordinates of the Brandenburg Gate are:
 
-brandenburg_gate_gps = (52.516288, 13.377689)
+::
+    brandenburg_gate_gps = (52.516288, 13.377689)
 
 Satellite path is a great circle path between coordinates:
 
-satellite_path_start = (52.590117, 13.39915)
-satellite_path_end = (52.437385, 13.553989)
+::
+    satellite_path_start = (52.590117, 13.39915)
+    satellite_path_end = (52.437385, 13.553989)
 
 River Spree can be approximated as piecewise linear between the following coordinates:
 
-spree_coords = [(52.529198, 13.274099), (52.531835, 13.292340), (52.522116, 13.298541), (52.520569, 13.317349), (52.524877, 13.322434), (52.522788, 13.329000), (52.517056, 13.332075), (52.522514, 13.340743), (52.517239, 13.356665), (52.523063, 13.372158), (52.519198, 13.379453), (52.522462, 13.392328), (52.520921, 13.399703), (52.515333, 13.406054), (52.514863, 13.416354), (52.506034, 13.435923), (52.496473, 13.461587), (52.487641, 13.483216), (52.488739, 13.491456), (52.464011, 13.503386)]
+::
+    spree_coords = [(52.529198, 13.274099), (52.531835, 13.292340), (52.522116, 13.298541), (52.520569, 13.317349), (52.524877, 13.322434), (52.522788, 13.329000), (52.517056, 13.332075), (52.522514, 13.340743), (52.517239, 13.356665), (52.523063, 13.372158), (52.519198, 13.379453), (52.522462, 13.392328), (52.520921, 13.399703), (52.515333, 13.406054), (52.514863, 13.416354), (52.506034, 13.435923), (52.496473, 13.461587), (52.487641, 13.483216), (52.488739, 13.491456), (52.464011, 13.503386)]
 
 You can (but don’t have to) use following simple projection for getting GPS coordinates into an orthogonal coordinate system. The projection is reasonably accurate for the Berlin area. Result is an XY coordinate system with the origin (0,0) at the South-West corner of the area we are interested in. The X axis corresponds to East-West and is given in kilometres. The Y axis corresponds to North-South and is also given in kilometres.
 
 South-west corner of the area we are interested in:
 
-SW_lat = 52.464011
-SW_lon = 13.274099
+::
+    SW_lat = 52.464011
+    SW_lon = 13.274099
 
 The x and y coordinates of a GPS coordinate P with _(P_lat, P_lon)_ can be calculated using:
 
-
-P_x = (P_lon − SW_lon) ∗ cos(SW_lat * pi / 180) ∗ 111.323
-P_y = (P_lat − SW_lat) ∗ 111.323
+::
+    P_x = (P_lon − SW_lon) ∗ cos(SW_lat * pi / 180) ∗ 111.323
+    P_y = (P_lat − SW_lat) ∗ 111.323
 
 
 Solution
@@ -57,22 +62,23 @@ Set up
 --------
 I will use Python and its many fabulous packages to attempt to solve this teaser. In particular I'll be working with an [Anaconda](https://www.continuum.io/why-anaconda) installation of Python 2.7 under Mac OSX 10 and Linux RHEL 6. All code is in the `zalando_solution.py` unless otherqise stated below. You can run it yourself  if you have the right dependancies installed (see below):
 
-import zalando_solution
-zalando_solution.main()
+    import zalando_solution
+    zalando_solution.main()
 
 External dependancies
 --------------------------------
 
-gmplot (zalando_solution)
-matplotlib (zalando_solution)
-\-pyplot (zalando_solution)
-mpl_toolkits 
-\-mplot3d (zalando_solution)
-numpy (zalando_solution)
-scipy 
-\-stats (zalando_solution)
-shapely 
-\-geometry (zalando_solution)
+
+    gmplot (zalando_solution)
+    matplotlib (zalando_solution)
+    \-pyplot (zalando_solution) 
+    mpl_toolkits 
+    \-mplot3d (zalando_solution)
+    numpy (zalando_solution)
+    scipy 
+    \-stats (zalando_solution)
+    shapely 
+    \-geometry (zalando_solution)
 
 Method
 ----------
@@ -91,12 +97,13 @@ Next up I had a look at what information is given in more detail regarding the p
 The Brandenburg Gate source has log-normal distribution with mean mean of 4.7km and a mode of 3.877km. 
 Now from maths we know that for a [log normal distribution](https://en.wikipedia.org/wiki/Log-normal_distribution),
 
-mean = np.exp(mu - sigma**2)
-mode = np.exp(mu - sigma**2)
+    mean = np.exp(mu - sigma**2)
+    mode = np.exp(mu - sigma**2)
+
 So some simple rearranging (I actually did this by hand for fun!), we can define,
 
-sigma = np.sqrt((2./3.) * (np.log(mean) - np.log(mode)))
-mu = ((2.*np.log(mean)) + np.log(mode)) / 3.
+    sigma = np.sqrt((2./3.) * (np.log(mean) - np.log(mode)))
+    mu = ((2.*np.log(mean)) + np.log(mode)) / 3.
 
 You'll find all of this in the `log_normal()` function.
 
@@ -127,9 +134,9 @@ Now to calculate the probability distribution functions for each of the sources.
 
 See the `pdf_point()` function for the calculations, where the following were used:
 
-brandenburg_point = Point(bran_coords)
-satellite_point = LineString([(sat_coords_start), (sat_coords_end)])
-spree_point = LineString(spree_coords)
+    brandenburg_point = Point(bran_coords)
+    satellite_point = LineString([(sat_coords_start), (sat_coords_end)])
+    spree_point = LineString(spree_coords)
 
 ----------
 
@@ -150,7 +157,7 @@ Result
 ---------
 It is clear from the 3D view of the total probability distribution that there are multiple peaks. However, the teaser asked for the best location to send the recruiters, so to calculate this I simply found the maximum of the distribution. So (*drumroll*), you will find them here:
 
-52.49128610520737, 13.49485721977875
+    52.49128610520737, 13.49485721977875
 
 I created a map of the location with `plot_pdf()`, outputting _analyst_location.html_ in the _results_ folder.
 
