@@ -49,7 +49,6 @@ def main():
     """......
         """
     ##First I mapped all the information as a sanity check,
-    ##commented out as for me not for the solution
     ##Note, my first version was using Basemap but commented out as it totally sucked...
     plot_teaser_coords()
 
@@ -58,8 +57,9 @@ def main():
     sat_norm = normal(SAT_DIST, mu=0.)
     spree_norm = normal(SPREE_DIST, mu=0.)
 
-	##I plotted the below as a sanity check, commented out as really not needed for the solution
-# 	plot_distribs(bran_lognorm, sat_norm, spree_norm)
+	##I plotted the below as a sanity check, 
+	##commented out as really not needed for the solution
+#    plot_distribs(bran_lognorm, sat_norm, spree_norm)
 
 	##I decided to use the conversion equations provided to me to work in cartesian
 	##rather than spherical coordinates, so next step is to convert everything needed.
@@ -81,10 +81,10 @@ def main():
     sat_z = np.array(sat_prob).reshape(x_shape)
     spree_z = np.array(spree_prob).reshape(x_shape)
 
-	##Convert back to spherical coords:
+	##Convert back to spherical coords
     lat_grid, lon_grid = search_grid(box, x_shape)
 
-	##Combine them
+	##Combine them and print out max
     total_z = bran_z + sat_z + spree_z
     max_loc = np.where(total_z == total_z.max())
     analyst_loc = (float(lat_grid[max_loc]), float(lon_grid[max_loc]))
@@ -139,18 +139,18 @@ def pdf_point(box, point, distrib):
 #def plot_distribs(bran, sat, spree):
 #    """......
 #        """
-#	x = np.linspace(0, 10, 101)
-#	fig = plt.figure()
-#	ax = fig.add_subplot(1, 1, 1)
-#	ax.plot(x, bran_lognorm.pdf(x),
-#			label = 'Brandenburg', color = 'k')
-#	ax.plot(x, sat_norm.pdf(x),
-#			label = 'Satellite', color = 'm')
-#	ax.plot(x, spree_norm.pdf(x),
-#			label = 'Spree', color = 'b')
-#	ax.legend()
-#	fig.savefig('./results/norms.png', format = "png")
-#	plt.close()
+#    x = np.linspace(0, 10, 101)
+#    fig = plt.figure()
+#    ax = fig.add_subplot(1, 1, 1)
+#    ax.plot(x, bran.pdf(x),
+#            label = 'Brandenburg', color = 'k')
+#    ax.plot(x, sat.pdf(x),
+#            label = 'Satellite', color = 'm')
+#    ax.plot(x, spree.pdf(x),
+#            label = 'Spree', color = 'b')
+#    ax.legend()
+#    fig.savefig('./results/norms.png', format = "png")
+#    plt.close()
 
 
 def plot_pdf(bran_z, sat_z, spree_z, total_z, lat, lon, loc):
@@ -188,7 +188,18 @@ def plot_pdf(bran_z, sat_z, spree_z, total_z, lat, lon, loc):
     plt.close()
 
 
-# def plot_teaser_coords():
+def plot_solution(loc):
+    """......
+        """
+    gmap = gmplot.GoogleMapPlotter.from_geocode("Berlin")
+
+    gmap.marker(loc[0], loc[1],
+                'r')
+
+    gmap.draw("./results/analyst_location.html")
+
+
+# def plot_teaser_basemap():
 # 	"""......
 #       """
 # 	map = Basemap(projection='merc', resolution = 'l',
@@ -213,17 +224,6 @@ def plot_pdf(bran_z, sat_z, spree_z, total_z, lat, lon, loc):
 # 	map.plot(xt, yt, linewidth = 2, color = 'b')
 # 	plt.show()
 # 	plt.close()
-
-
-def plot_solution(loc):
-    """......
-        """
-    gmap = gmplot.GoogleMapPlotter.from_geocode("Berlin")
-
-    gmap.marker(loc[0], loc[1],
-                'r')
-
-    gmap.draw("./results/analyst_location.html")
 
 
 def plot_teaser_coords():
