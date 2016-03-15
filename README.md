@@ -21,36 +21,30 @@ Coordinates
 
 Radis of Earth is defined as:
 
-::
     earth_radius = 6371 #units in km
 
 The GPS coordinates of the Brandenburg Gate are:
 
-::
     brandenburg_gate_gps = (52.516288, 13.377689)
 
 Satellite path is a great circle path between coordinates:
 
-::
     satellite_path_start = (52.590117, 13.39915)
     satellite_path_end = (52.437385, 13.553989)
 
 River Spree can be approximated as piecewise linear between the following coordinates:
 
-::
     spree_coords = [(52.529198, 13.274099), (52.531835, 13.292340), (52.522116, 13.298541), (52.520569, 13.317349), (52.524877, 13.322434), (52.522788, 13.329000), (52.517056, 13.332075), (52.522514, 13.340743), (52.517239, 13.356665), (52.523063, 13.372158), (52.519198, 13.379453), (52.522462, 13.392328), (52.520921, 13.399703), (52.515333, 13.406054), (52.514863, 13.416354), (52.506034, 13.435923), (52.496473, 13.461587), (52.487641, 13.483216), (52.488739, 13.491456), (52.464011, 13.503386)]
 
 You can (but don’t have to) use following simple projection for getting GPS coordinates into an orthogonal coordinate system. The projection is reasonably accurate for the Berlin area. Result is an XY coordinate system with the origin (0,0) at the South-West corner of the area we are interested in. The X axis corresponds to East-West and is given in kilometres. The Y axis corresponds to North-South and is also given in kilometres.
 
 South-west corner of the area we are interested in:
 
-::
     SW_lat = 52.464011
     SW_lon = 13.274099
 
 The x and y coordinates of a GPS coordinate P with _(P_lat, P_lon)_ can be calculated using:
 
-::
     P_x = (P_lon − SW_lon) ∗ cos(SW_lat * pi / 180) ∗ 111.323
     P_y = (P_lat − SW_lat) ∗ 111.323
 
@@ -107,7 +101,7 @@ So some simple rearranging (I actually did this by hand for fun!), we can define
 
 You'll find all of this in the `log_normal()` function.
 
-Now the satellite and Spree sources are both normal distributions, with 95% probability of location within 2.4km of the satellite path and 2.73km within the river path. 
+Now the satellite and Spree sources are both [normal distributions](https://en.wikipedia.org/wiki/Normal_distribution), with 95% probability of location within 2.4km of the satellite path and 2.73km within the river path. 
 
 That means we can use that lovely number 1.96 (the joys of 2sigma) for calculating the mean, with `mu = 0.` here. You'll see in the `normal()` function that I didn't just write the number though ;)
 
@@ -140,11 +134,11 @@ See the `pdf_point()` function for the calculations, where the following were us
 
 ----------
 
-I then converted back to spherical geometry (see `lat_grid` and `on_grid`) to find the most likely GPS location of the analyst.
+I then converted back to spherical geometry (see `lat_grid` and `lon_grid`) to find the most likely GPS location of the analyst.
 
 In operational space weather forecasting, the easiest way to combine multiple forecasts to create and ensemble forecast is to use a simple linear combination. See, e.g., [Guerra et al](http://arxiv.org/abs/1504.04571), where several flare forecasts were weighted and linearly combined. Obviously I don't have historical forecast performance here so to get the total probability I simply added them all:
 
-total_probability = brandenburg_probability + spree_probability + satellite_probability
+    total_probability = brandenburg_probability + spree_probability + satellite_probability
 
 I created some plots of the results with `plot_pdf()`, see _distribs_all.png_ and _distrib_total.png_ in the _results_ folder.
 
@@ -164,6 +158,7 @@ I created a map of the location with `plot_pdf()`, outputting _analyst_location.
 ![Map of analyst location](https://i.imgur.com/g1KhvmN.jpg)
 
 The recruiters can use this Google map link to get directions:
+
 https://www.google.com/maps/?q=52.4912861052,13.4948572198
 
 Its worth noting that the location looks to be some kind of factory, so it might be worth investigating the other peaks in the distribution!
