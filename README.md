@@ -101,7 +101,7 @@ So some simple rearranging (I actually did this by hand for fun!), we can define
 
 I actually did the maths by hand for fun! Here's where it comes from:
 
-![Getting mu and sigma](http://i.imgur.com/YPsBeSs.png)
+![Getting mu and sigma](https://i.imgur.com/dgWnqdV.png)
 
 You'll find this in the `log_normal()` function.
 
