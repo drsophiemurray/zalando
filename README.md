@@ -164,7 +164,7 @@ I created a map of the location with `plot_solution()`, outputting _analyst_loca
 
 The recruiters can use this Google map link to get directions:
 
-https://www.google.com/maps/?q=52.4912861052,13.4948572198
+https://www.google.com/maps/?q=52.49128610520737,13.49485721977875
 
 I have also saved the result to _location.txt_ in the _results_ folder in case its forgotten and needed at a later point.
 
