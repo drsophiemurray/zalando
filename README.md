@@ -54,7 +54,7 @@ Solution
 
 Set up
 --------
-I will use Python and its many fabulous packages to attempt to solve this teaser. In particular I'll be working with an [Anaconda](https://www.continuum.io/why-anaconda) installation of Python 2.7 with Mac OSX 10.10.5. It has also been tested in Red Hat Enterprise Linux 6.7. All code is in `zalando_solution.py` unless otherwise stated below. You can run it yourself  if you have the right dependancies installed (see below):
+I will use Python and its many fabulous packages to attempt to solve this teaser. In particular I'll be working with an [Anaconda](https://www.continuum.io/why-anaconda) installation of Python 2.7 with Mac OSX 10.10.5. It has also been tested in Red Hat Enterprise Linux 6.7. All code is in `zalando_solution.py` unless otherwise stated below. You can run it yourself  if you have the right dependencies installed (see below):
 
     import zalando_solution
     zalando_solution.main()
@@ -82,7 +82,7 @@ So I investigated another way to do it, and after some googling I found [``gmplo
 
 ![Google map of info provided for teaser](http://i.imgur.com/UEgKoN8.jpg)
 
-In this image, the Brandenburg Gate location is in black, the satellite path is in magenta, and the river is in blue. This colour convention will be continued for the rest of the analysis.Note that since no information is given about the satellite at all (its altitude, whether its in e.g., LEO or GEO orbit, etc), I had to assume its a straight line path. Over such a short distance this is probably pretty accurate anyway.
+In this image, the Brandenburg Gate location is in black, the satellite path is in magenta, and the river is in blue. This colour convention will be continued for the rest of the analysis. Note that since no information is given about the satellite at all (its altitude, whether its in e.g., LEO or GEO orbit, etc), I had to assume its a straight line path. Over such a short distance this is probably pretty accurate anyway.
 
 ----------
 
@@ -107,7 +107,7 @@ That means we can use that lovely number 1.96 (the joys of 2sigma) for calculati
 
 As a sanity check I plotted the results using `plot_distribs()`, which will output _norms.png_ in the _results_ folder. Note this really isn't needed for the solution, and has been commented out of the main code. 
 
-![Quick view of all the distributions](http://i.imgur.com/CWcGM9q.png)
+![Quick view of all the distributions](https://i.imgur.com/N66DbQ6.png)
 
 ----------
 
@@ -134,22 +134,22 @@ See the `pdf_point()` function for the calculations, where the following were us
 
 I made another 'sanity check' figure with `plot_contour_distribs()`, resulting in _distribs_2d.png_ in the _results_ folder again. As before, this has been commented out of the main code as its not needed for the solution.
 
-![2D plots of distributions](https://i.imgur.com/O9TU539.png)
+![2D plots of distributions](https://i.imgur.com/enZl79s.png)
 
 
 ----------
 
 I then converted back to spherical geometry (see `lat_grid` and `lon_grid`) to find the most likely GPS location of the analyst.
 
-In operational space weather forecasting, the easiest way to combine multiple forecasts to create and ensemble forecast is to use a simple linear combination. See, e.g., [Guerra et al](http://arxiv.org/abs/1504.04571), where several flare forecasts were weighted and linearly combined. Obviously I don't have historical forecast performance here so to get the total probability I simply added them all:
+In operational space weather forecasting, the easiest way to combine multiple forecasts to create an ensemble forecast is to use a simple linear combination. See, e.g., [Guerra et al](http://arxiv.org/abs/1504.04571), where several flare forecasts were weighted and linearly combined. Obviously I don't have historical forecast performance here so to get the total probability I simply added them all:
 
     total_probability = brandenburg_probability + spree_probability + satellite_probability
 
-I created some plots of the results with `plot_pdf()`, see _distribs_all.png_ and _distrib_total.png_ in the _results_ folder.
+I created some plots of the results with `plot_pdf()`; see _distribs_all.png_ and _distrib_total.png_ in the _results_ folder.
 
-![3D view of the distributions](http://i.imgur.com/ODA0mYm.png)
+![3D view of the distributions](https://i.imgur.com/3erHULb.png)
 
-![3D view of the total probability distribution](http://i.imgur.com/zlFN8Ts.png)
+![3D view of the total probability distribution](https://i.imgur.com/kmgIkpm.png)
 
 
 Result
