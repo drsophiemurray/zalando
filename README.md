@@ -115,7 +115,7 @@ As a sanity check I plotted the results using `plot_distribs()`, which will outp
 
 ----------
 
-Now we need to actually get the proper distributions within a search grid over Berlin. I first converted all the GPS coordinates to cartesian since some equations for that purpose were provided. See the `sphere_to_cart()` function for converting from spherical to cartesian, and also `cart_to_sphere()` for converting back to spherical (will need that later to get the GPS location of the analyst!). Note the conversion from cartesian to spherical is obtained by simply rearranging the sphere_to_cart() equations for P_lat and P_lon:
+Now we need to actually get the proper distributions within a search grid over Berlin. I first converted all the GPS coordinates to cartesian since some equations for that purpose were provided. See the `sphere_to_cart()` function for converting from spherical to cartesian, and also `cart_to_sphere()` for converting back to spherical (will need that later to get the GPS location of the analyst!). Note the conversion from cartesian to spherical is obtained by simply rearranging the original equations for P_lat and P_lon:
 
     P_lat = (P_y / 111.323) + SW_lat
     P_lon = P_x / (111.323 * cos(SW_lat * pi / 180.)) + SW_lon
