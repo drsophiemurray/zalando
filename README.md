@@ -96,10 +96,14 @@ Now from maths we know that for a [log normal distribution](https://en.wikipedia
 
 So some simple rearranging (I actually did this by hand for fun!), we can define,
 
-    sigma = np.sqrt((2./3.) * (np.log(mean) - np.log(mode)))
     mu = ((2.*np.log(mean)) + np.log(mode)) / 3.
+    sigma = np.sqrt((2./3.) * (np.log(mean) - np.log(mode)))
 
-You'll find all of this in the `log_normal()` function.
+I actually did the maths by hand for fun! Here's where it comes from:
+
+![Getting mu and sigma](http://i.imgur.com/YPsBeSs.png)
+
+You'll find this in the `log_normal()` function.
 
 Now the satellite and Spree sources are both [normal distributions](https://en.wikipedia.org/wiki/Normal_distribution), with 95% probability of location within 2.4km of the satellite path and 2.73km within the river path. 
 
@@ -111,7 +115,11 @@ As a sanity check I plotted the results using `plot_distribs()`, which will outp
 
 ----------
 
-Now we need to actually get the proper distributions within a search grid over Berlin. I first converted all the GPS coordinates to cartesian since some equations for that purpose were provided. See the `sphere_to_cart()` function for converting from spherical to cartesian, and also `cart_to_sphere()` for converting back to spherical (will need that later to get the GPS location of the analyst!).
+Now we need to actually get the proper distributions within a search grid over Berlin. I first converted all the GPS coordinates to cartesian since some equations for that purpose were provided. See the `sphere_to_cart()` function for converting from spherical to cartesian, and also `cart_to_sphere()` for converting back to spherical (will need that later to get the GPS location of the analyst!). Note the conversion from cartesian to spherical is obtained by simply rearranging the sphere_to_cart() equations for P_lat and P_lon:
+
+    P_lat = (P_y / 111.323) + SW_lat
+    P_lon = P_x / (111.323 * cos(SW_lat * pi / 180.)) + SW_lon
+
 
 Then I defined a search grid. I used the boundaries of the river and satellite path for this purpose. I used equations from (the really useful) [_Movable Type_](http://www.movable-type.co.uk/scripts/latlong.html) to calculate LAT_RANGE and LON_RANGE from the following conditions:
 
@@ -124,7 +132,7 @@ These ranges were converted to cartesian and a `box` was created with resolution
 
 ----------
 
-Now to calculate the probability distribution functions for each of the sources. I came across the [`shapely`](https://github.com/Toblerity/Shapely) package on Stack Overflow for analysis in cartesian geometry, which I used for calculating the distance from points to points/lines. However, its worth noting other ways to this. See `distance.py` for some functions to use maths to calculate the same thing. Note the `haversine()` function there (which I also found on Stack Overflow) can be used to do this in spherical geometry instead!
+Now to calculate the probability distribution functions for each of the sources. I came across the [`shapely`](https://github.com/Toblerity/Shapely) package on Stack Overflow for analysis in cartesian geometry, which I used for calculating the distance from points to points/lines. However, its worth noting other ways to this. See `distances.py` for some functions to use maths to calculate the same thing. Note the `haversine()` function there (which I also found on Stack Overflow) can be used to do this in spherical geometry instead!
 
 See the `pdf_point()` function for the calculations, where the following were used:
 
@@ -169,3 +177,11 @@ https://www.google.com/maps/?q=52.49128610520737,13.49485721977875
 I have also saved the result to _location.txt_ in the _results_ folder in case its forgotten and needed at a later point.
 
 Its worth noting that the location looks to be some kind of factory, which is a bit odd, so it might be worth investigating the other peaks in the distribution!
+
+TODO
+---------
+I think the code could be improved, as its very much just documenting my thought process at the moment, rather than a nice clean program.
+* Could group the various location analyses into their own functions instead, so main() wouldnt be so messy. 
+* Need to remove some yucky hacky code (internet really helped in some parts, but I need to go back and make it better), add error handling, etc.
+* Code review!
+* Could also investigate those other peaks in the distributions for a better analysis.

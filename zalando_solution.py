@@ -94,21 +94,20 @@ def main():
     # Plotted onto a Google map instead!
     plot_teaser_coords()
 
-	# Next work with the info that has bee provided
-    # re: the probability distributions.
+    # Next work with the info that has bee provided re: the probability distributions.
     bran_lognorm = log_normal(BRAN_MEAN, BRAN_MODE)
     sat_norm = normal(SAT_DIST, mu=0.)
     spree_norm = normal(SPREE_DIST, mu=0.)
 
-	# I plotted the below as a sanity check, but have
-	# commented out as really not needed for the solution.
+    # I plotted the below as a sanity check,
+    # but have commented out as really not needed for the solution.
 #    plot_distribs(bran_lognorm, sat_norm, spree_norm)
 
     #---------------------------------
 
-	# I decided to use the conversion equations provided to work
+    # I decided to use the conversion equations provided to work
     # in cartesian rather than spherical coordinates,
-	# so the next step is to convert everything needed.
+    # so the next step is to convert everything needed.
     bran_coords = sphere_to_cart(BRAN_GPS[0], BRAN_GPS[1])
     sat_coords_start = sphere_to_cart(SAT_GPS_START[0], SAT_GPS_START[1])
     sat_coords_end = sphere_to_cart(SAT_GPS_END[0], SAT_GPS_END[1])
@@ -136,10 +135,10 @@ def main():
 
     #---------------------------------
 
-	# Convert back to spherical coords.
+    # Convert back to spherical coords.
     lat_grid, lon_grid = search_grid(box, xx.shape)
 
-	# Combine them linearly and print out max.
+    # Combine them linearly and print out max.
     total_z = bran_z + sat_z + spree_z
     max_loc = np.where(total_z == total_z.max())
     analyst_loc = (float(lat_grid[max_loc]), float(lon_grid[max_loc]))
@@ -152,7 +151,7 @@ def main():
                fmt="%0.4f",
                header="latitude longitude")
 
-	# Plot the distributions.
+    # Plot the distributions.
     plot_pdf(bran_z, sat_z, spree_z, total_z, lat_grid, lon_grid, max_loc)
 
     # Show location on Google map.
@@ -221,29 +220,27 @@ def normal(distance, mu):
 
 
 def pdf_point(box, point, distrib):
-    """Calculate the probability density function
-        by first calculating distance from a point
-        in 'box' to another 'point' with the
-        shapely geometry package, then using
-        scipy.stats package.
+    """Calculate the probability density function by first
+        calculating distance from a point in 'box' to
+        another 'point' with the shapely geometry package,
+        then using scipy.stats package.
+        This 'point' could be an actual point, a line, etc.
         """
-    prob = []
-    for xy in box:
-        xy = Point(xy)
-        distance = xy.distance(point)
-        prob.append(distrib.pdf(distance))
+    # convert to shapely Point
+    coords = [Point(xy) for xy in box]
+    # get shortest distance
+    dist = [xy.distance(point) for xy in coords]
+    # get pdf
+    prob = [distrib.pdf(xy) for xy in dist]
     return prob
 
 
 def plot_contour_distribs(bran_z, sat_z, spree_z, xx, yy):
-    """Use matplotlib to plot a 2D image of the
-        calculated probability distributions.
-        Some plot settings are also defined with
-        axis_contour_settings() since I find it
-        easier to add more later if needed that way!
-        TODO: could include the pcolor part within
-        plot settings function as I normally do rather
-        than repeating it three times in a row!!
+    """Use matplotlib to plot a 2D image of the calculated probability distributions.
+        Some plot settings are also defined with axis_contour_settings() since
+        I find it easier to add more later if needed that way!
+        TODO: could include the pcolor part within plot settings function
+        as I normally do rather than repeating it three times in a row!!
         """
     # set data max/min for consistency
     norm = mpl.colors.Normalize(vmin=bran_z.min(),
@@ -469,9 +466,10 @@ def search_box(lat_range, lon_range, interval):
 
     xx, yy = np.meshgrid(x_range, y_range)
 
-    # making a long list so that can call the points easier
-    # (thank goodness for stackoverflow for the inspiration
-    # for this part!)
+    # making a long list so that can call the points easier.
+    # thank goodness for stackoverflow for the inspiration
+    # for this part as I was getting really confused, but
+    # I dont really like the way its written. TODO: make better!
     box = []
     for i in range(0, len(xx)):
         for j in range(0, len(yy[i])):
@@ -484,6 +482,8 @@ def search_grid(box, xx_shape):
     """Create grid in spherical geometry from the
         'box' in cartesian coordinates.
         """
+    # as per search_box(), stack overflow really helped my confusion
+    # here, but TODO: make better!
     lats = []
     lons = []
 
